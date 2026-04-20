@@ -15,7 +15,7 @@ pipeline {
                 echo "Phat hien thay doi Frontend. Dang build qlncc-fe..."
                 sh "docker build -t ${DOCKER_HUB_USER}/qlncc-fe:latest -f QLNCC_client/Dockerfile QLNCC_client/"
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh 'printf "%s" "$PASS" | docker login -u "$USER" --password-stdin'
+                    sh 'printf "%s" "$PASS" | tr -d "\r\n" | docker login -u "$USER" --password-stdin'
                     sh "docker push ${DOCKER_HUB_USER}/qlncc-fe:latest"
                 }
             }
@@ -46,7 +46,7 @@ pipeline {
                 echo "Phat hien thay doi Backend. Dang build qlncc-be..."
                 sh "docker build -t ${DOCKER_HUB_USER}/qlncc-be:latest -f QLNCC_server/Dockerfile QLNCC_server/"
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                    sh 'printf "%s" "$PASS" | docker login -u "$USER" --password-stdin'
+                    sh 'printf "%s" "$PASS" | tr -d "\r\n" | docker login -u "$USER" --password-stdin'
                     sh "docker push ${DOCKER_HUB_USER}/qlncc-be:latest"
                 }
             }
