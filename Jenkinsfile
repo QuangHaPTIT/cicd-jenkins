@@ -2,16 +2,13 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_USER = '<USER_DOCKERHUB>'
-        APP_SERVER_IP   = '<IP_CON_EC2_APP>'
+        DOCKER_HUB_USER = 'phamha220203'
+        APP_SERVER_IP   = '54.179.173.3'
     }
 
     triggers { githubPush() }
 
     stages {
-        // ==========================================
-        // FRONTEND: chỉ chạy khi có thay đổi QLNCC_client
-        // ==========================================
         stage('Frontend: Build & Push') {
             when { changeset "QLNCC_client/**" }
             steps {
@@ -34,6 +31,7 @@ pipeline {
 
                     ssh -i ${KEY} -o StrictHostKeyChecking=no ubuntu@${APP_SERVER_IP} << 'EOF'
                         cd /home/ubuntu/
+                        export DOCKER_HUB_USER=${DOCKER_HUB_USER}
                         docker pull ${DOCKER_HUB_USER}/qlncc-fe:latest
                         docker-compose up -d --no-deps --build frontend-app
                     EOF
@@ -42,9 +40,6 @@ pipeline {
             }
         }
 
-        // ==========================================
-        // BACKEND: chỉ chạy khi có thay đổi QLNCC_server
-        // ==========================================
         stage('Backend: Build & Push') {
             when { changeset "QLNCC_server/**" }
             steps {
@@ -67,6 +62,7 @@ pipeline {
 
                     ssh -i ${KEY} -o StrictHostKeyChecking=no ubuntu@${APP_SERVER_IP} << 'EOF'
                         cd /home/ubuntu/
+                        export DOCKER_HUB_USER=${DOCKER_HUB_USER}
                         docker pull ${DOCKER_HUB_USER}/qlncc-be:latest
                         docker-compose up -d --no-deps --build backend-app
                     EOF

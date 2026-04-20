@@ -14,21 +14,21 @@ services:
       - app-network
 
   frontend-app:
-    image: <USER_DOCKERHUB>/qlncc-fe:latest
+    image: ${DOCKER_HUB_USER}/qlncc-fe:latest
     container_name: my-nuxt-app-dev
     networks:
       - app-network
 
   backend-app:
-    image: <USER_DOCKERHUB>/qlncc-be:latest
+    image: ${DOCKER_HUB_USER}/qlncc-be:latest
     container_name: my-spring-app-dev
     depends_on:
       - postgres
       - redis
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydb
-      SPRING_DATASOURCE_USERNAME: myuser
-      SPRING_DATASOURCE_PASSWORD: mypassword
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/qlncc
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1234
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
     networks:
@@ -38,9 +38,9 @@ services:
     image: postgres:15-alpine
     container_name: my-postgres-dev
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: qlncc
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
