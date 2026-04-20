@@ -24,6 +24,6 @@ public class ExamController {
 
     @GetMapping("/role")
     public String getRole() {
-        return "USER 1";
+        return "USER 2";
     }
 }
