@@ -33,7 +33,7 @@ ssh -i ${KEY} -o StrictHostKeyChecking=no ubuntu@${APP_SERVER_IP} << 'EOF'
 cd /home/ubuntu/
 export DOCKER_HUB_USER=${DOCKER_HUB_USER}
 docker pull ${DOCKER_HUB_USER}/qlncc-fe:latest
-docker-compose up -d --no-deps --build frontend-app
+docker compose up -d --no-deps frontend-app
 EOF
                     """
                 }
@@ -64,7 +64,7 @@ ssh -i ${KEY} -o StrictHostKeyChecking=no ubuntu@${APP_SERVER_IP} << 'EOF'
 cd /home/ubuntu/
 export DOCKER_HUB_USER=${DOCKER_HUB_USER}
 docker pull ${DOCKER_HUB_USER}/qlncc-be:latest
-docker-compose up -d --no-deps --build backend-app
+docker compose up -d --no-deps backend-app
 EOF
                     """
                 }
