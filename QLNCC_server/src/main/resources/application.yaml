@@ -1,0 +1,38 @@
+server:
+  port: 8081
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.hibernate.engine.transaction: DEBUG
+    org.springframework.transaction: DEBUG
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/qlncc?reWriteBatchedInserts=true
+    username: postgres
+    password: "1234"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: QlnccServerHikariPool
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+  jta:
+    enabled: false
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:true}
+    out-of-order: ${FLYWAY_OUT_OF_ORDER:true}
