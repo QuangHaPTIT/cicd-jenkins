@@ -2,7 +2,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_HUB_USER = 'phamha22'
+        DOCKER_HUB_USER = 'quangha22'
         APP_SERVER_IP   = '54.179.173.3'
     }
 
