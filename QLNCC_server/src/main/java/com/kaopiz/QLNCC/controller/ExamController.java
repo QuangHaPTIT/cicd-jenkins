@@ -21,4 +21,9 @@ public class ExamController {
     public String getMe() {
         return "I AM DEV";
     }
+
+    @GetMapping("/role")
+    public String getRole() {
+        return "USER";
+    }
 }
