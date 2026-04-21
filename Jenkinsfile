@@ -34,11 +34,20 @@ ssh -T -i "$KEY" -o StrictHostKeyChecking=no ubuntu@"$APP_SERVER_IP" << EOF
 set -e
 cd /home/ubuntu/
 export DOCKER_HUB_USER="$DOCKER_HUB_USER"
+echo "Remote host:"
+hostname
+echo "Remote IPv4:"
+hostname -I | cut -d' ' -f1
+docker --version || true
 docker pull "$DOCKER_HUB_USER/qlncc-fe:latest"
 
 if docker compose version >/dev/null 2>&1; then
+    docker compose version
     docker compose -f docker-compose.yml up -d --no-deps frontend-app
 elif command -v docker-compose >/dev/null 2>&1; then
+    echo "Warning: docker compose v2 not found, fallback to docker-compose v1"
+    docker-compose version || true
+    docker rm -f my-nuxt-app >/dev/null 2>&1 || true
     docker-compose -f docker-compose.yml up -d --no-deps frontend-app
 else
     echo "Docker Compose is not installed on server"
@@ -75,11 +84,20 @@ ssh -T -i "$KEY" -o StrictHostKeyChecking=no ubuntu@"$APP_SERVER_IP" << EOF
 set -e
 cd /home/ubuntu/
 export DOCKER_HUB_USER="$DOCKER_HUB_USER"
+echo "Remote host:"
+hostname
+echo "Remote IPv4:"
+hostname -I | cut -d' ' -f1
+docker --version || true
 docker pull "$DOCKER_HUB_USER/qlncc-be:latest"
 
 if docker compose version >/dev/null 2>&1; then
+    docker compose version
     docker compose -f docker-compose.yml up -d --no-deps backend-app
 elif command -v docker-compose >/dev/null 2>&1; then
+    echo "Warning: docker compose v2 not found, fallback to docker-compose v1"
+    docker-compose version || true
+    docker rm -f my-spring-app >/dev/null 2>&1 || true
     docker-compose -f docker-compose.yml up -d --no-deps backend-app
 else
     echo "Docker Compose is not installed on server"
