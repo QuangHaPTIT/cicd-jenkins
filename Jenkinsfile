@@ -25,17 +25,27 @@ pipeline {
             when { changeset "QLNCC_client/**" }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY')]) {
-                    sh """
-scp -i ${KEY} -o StrictHostKeyChecking=no infrastructure/docker/docker-compose.yml ubuntu@${APP_SERVER_IP}:/home/ubuntu/
-scp -i ${KEY} -o StrictHostKeyChecking=no infrastructure/nginx/nginx.conf ubuntu@${APP_SERVER_IP}:/home/ubuntu/
+                    sh '''
+set -e
+scp -i "$KEY" -o StrictHostKeyChecking=no infrastructure/docker/docker-compose.yml ubuntu@"$APP_SERVER_IP":/home/ubuntu/
+scp -i "$KEY" -o StrictHostKeyChecking=no infrastructure/nginx/nginx.conf ubuntu@"$APP_SERVER_IP":/home/ubuntu/
 
-ssh -i ${KEY} -o StrictHostKeyChecking=no ubuntu@${APP_SERVER_IP} << 'EOF'
+ssh -T -i "$KEY" -o StrictHostKeyChecking=no ubuntu@"$APP_SERVER_IP" << EOF
+set -e
 cd /home/ubuntu/
-export DOCKER_HUB_USER=${DOCKER_HUB_USER}
-docker pull ${DOCKER_HUB_USER}/qlncc-fe:latest
-docker compose up -d --no-deps frontend-app
+export DOCKER_HUB_USER="$DOCKER_HUB_USER"
+docker pull "$DOCKER_HUB_USER/qlncc-fe:latest"
+
+if docker compose version >/dev/null 2>&1; then
+    docker compose -f docker-compose.yml up -d --no-deps frontend-app
+elif command -v docker-compose >/dev/null 2>&1; then
+    docker-compose -f docker-compose.yml up -d --no-deps frontend-app
+else
+    echo "Docker Compose is not installed on server"
+    exit 125
+fi
 EOF
-                    """
+                    '''
                 }
             }
         }
@@ -56,23 +66,41 @@ EOF
             when { changeset "QLNCC_server/**" }
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'KEY')]) {
-                    sh """
-scp -i ${KEY} -o StrictHostKeyChecking=no infrastructure/docker/docker-compose.yml ubuntu@${APP_SERVER_IP}:/home/ubuntu/
-scp -i ${KEY} -o StrictHostKeyChecking=no infrastructure/nginx/nginx.conf ubuntu@${APP_SERVER_IP}:/home/ubuntu/
+                    sh '''
+set -e
+scp -i "$KEY" -o StrictHostKeyChecking=no infrastructure/docker/docker-compose.yml ubuntu@"$APP_SERVER_IP":/home/ubuntu/
+scp -i "$KEY" -o StrictHostKeyChecking=no infrastructure/nginx/nginx.conf ubuntu@"$APP_SERVER_IP":/home/ubuntu/
 
-ssh -i ${KEY} -o StrictHostKeyChecking=no ubuntu@${APP_SERVER_IP} << 'EOF'
+ssh -T -i "$KEY" -o StrictHostKeyChecking=no ubuntu@"$APP_SERVER_IP" << EOF
+set -e
 cd /home/ubuntu/
-export DOCKER_HUB_USER=${DOCKER_HUB_USER}
-docker pull ${DOCKER_HUB_USER}/qlncc-be:latest
-docker compose up -d --no-deps backend-app
+export DOCKER_HUB_USER="$DOCKER_HUB_USER"
+docker pull "$DOCKER_HUB_USER/qlncc-be:latest"
+
+if docker compose version >/dev/null 2>&1; then
+    docker compose -f docker-compose.yml up -d --no-deps backend-app
+elif command -v docker-compose >/dev/null 2>&1; then
+    docker-compose -f docker-compose.yml up -d --no-deps backend-app
+else
+    echo "Docker Compose is not installed on server"
+    exit 125
+fi
 EOF
-                    """
+                    '''
                 }
             }
         }
     }
 
     post {
-        always { sh "docker system prune -f" }
+                always {
+                        sh '''
+if docker info >/dev/null 2>&1; then
+    docker system prune -f
+else
+    echo "Skip docker system prune: Docker daemon unavailable"
+fi
+'''
+                }
     }
 }
