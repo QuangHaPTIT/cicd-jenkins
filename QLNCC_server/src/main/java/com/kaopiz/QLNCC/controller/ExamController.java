@@ -26,4 +26,9 @@ public class ExamController {
     public String getRole() {
         return "ADMIN USER 1";
     }
+
+    @GetMapping("/get-product")
+    public String getProduct() {
+        return "PRODUCT 1";
+    }
 }
