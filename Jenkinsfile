@@ -72,7 +72,7 @@ else
     chmod +x "$COMPOSE_BIN"
 fi
 docker compose version
-docker compose -f docker-compose.yml up -d --no-deps frontend-app
+docker compose -f docker-compose.yml up -d --no-deps --force-recreate frontend-app
 EOF
                     '''
                 }
@@ -142,7 +142,7 @@ else
     chmod +x "$COMPOSE_BIN"
 fi
 docker compose version
-docker compose -f docker-compose.yml up -d --no-deps backend-app
+docker compose -f docker-compose.yml up -d --no-deps --force-recreate backend-app
 EOF
                     '''
                 }
