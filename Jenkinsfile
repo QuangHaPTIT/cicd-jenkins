@@ -43,17 +43,36 @@ docker pull "$DOCKER_HUB_USER/qlncc-fe:latest"
 
 if docker compose version >/dev/null 2>&1; then
     docker compose version
-    docker compose -f docker-compose.yml up -d --no-deps frontend-app
 else
-    echo "docker compose v2 plugin not found, using docker/compose:2.29.7"
-    docker run --rm \
-      -e DOCKER_HUB_USER="$DOCKER_HUB_USER" \
-      -v /var/run/docker.sock:/var/run/docker.sock \
-      -v "$PWD:$PWD" \
-      -w "$PWD" \
-      docker/compose:2.29.7 \
-      -f docker-compose.yml up -d --no-deps frontend-app
+    echo "docker compose v2 plugin not found, installing standalone plugin"
+    COMPOSE_VERSION="v2.29.7"
+    COMPOSE_DIR="$HOME/.docker/cli-plugins"
+    COMPOSE_BIN="$COMPOSE_DIR/docker-compose"
+    mkdir -p "$COMPOSE_DIR"
+
+    ARCH="$(uname -m)"
+    case "$ARCH" in
+        x86_64|amd64) ARCH="x86_64" ;;
+        aarch64|arm64) ARCH="aarch64" ;;
+        *)
+            echo "Unsupported architecture for docker compose: $ARCH"
+            exit 125
+            ;;
+    esac
+
+    URL="https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-linux-$ARCH"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fL "$URL" -o "$COMPOSE_BIN"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "$COMPOSE_BIN" "$URL"
+    else
+        echo "Neither curl nor wget is available on remote host"
+        exit 125
+    fi
+    chmod +x "$COMPOSE_BIN"
 fi
+docker compose version
+docker compose -f docker-compose.yml up -d --no-deps frontend-app
 EOF
                     '''
                 }
@@ -94,17 +113,36 @@ docker pull "$DOCKER_HUB_USER/qlncc-be:latest"
 
 if docker compose version >/dev/null 2>&1; then
     docker compose version
-    docker compose -f docker-compose.yml up -d --no-deps backend-app
 else
-    echo "docker compose v2 plugin not found, using docker/compose:2.29.7"
-    docker run --rm \
-      -e DOCKER_HUB_USER="$DOCKER_HUB_USER" \
-      -v /var/run/docker.sock:/var/run/docker.sock \
-      -v "$PWD:$PWD" \
-      -w "$PWD" \
-      docker/compose:2.29.7 \
-      -f docker-compose.yml up -d --no-deps backend-app
+    echo "docker compose v2 plugin not found, installing standalone plugin"
+    COMPOSE_VERSION="v2.29.7"
+    COMPOSE_DIR="$HOME/.docker/cli-plugins"
+    COMPOSE_BIN="$COMPOSE_DIR/docker-compose"
+    mkdir -p "$COMPOSE_DIR"
+
+    ARCH="$(uname -m)"
+    case "$ARCH" in
+        x86_64|amd64) ARCH="x86_64" ;;
+        aarch64|arm64) ARCH="aarch64" ;;
+        *)
+            echo "Unsupported architecture for docker compose: $ARCH"
+            exit 125
+            ;;
+    esac
+
+    URL="https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-linux-$ARCH"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fL "$URL" -o "$COMPOSE_BIN"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -O "$COMPOSE_BIN" "$URL"
+    else
+        echo "Neither curl nor wget is available on remote host"
+        exit 125
+    fi
+    chmod +x "$COMPOSE_BIN"
 fi
+docker compose version
+docker compose -f docker-compose.yml up -d --no-deps backend-app
 EOF
                     '''
                 }
