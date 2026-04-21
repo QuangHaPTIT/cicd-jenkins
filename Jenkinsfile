@@ -44,14 +44,15 @@ docker pull "$DOCKER_HUB_USER/qlncc-fe:latest"
 if docker compose version >/dev/null 2>&1; then
     docker compose version
     docker compose -f docker-compose.yml up -d --no-deps frontend-app
-elif command -v docker-compose >/dev/null 2>&1; then
-    echo "Warning: docker compose v2 not found, fallback to docker-compose v1"
-    docker-compose version || true
-    docker rm -f my-nuxt-app >/dev/null 2>&1 || true
-    docker-compose -f docker-compose.yml up -d --no-deps frontend-app
 else
-    echo "Docker Compose is not installed on server"
-    exit 125
+    echo "docker compose v2 plugin not found, using docker/compose:2.29.7"
+    docker run --rm \
+      -e DOCKER_HUB_USER="$DOCKER_HUB_USER" \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v "$PWD:$PWD" \
+      -w "$PWD" \
+      docker/compose:2.29.7 \
+      -f docker-compose.yml up -d --no-deps frontend-app
 fi
 EOF
                     '''
@@ -94,14 +95,15 @@ docker pull "$DOCKER_HUB_USER/qlncc-be:latest"
 if docker compose version >/dev/null 2>&1; then
     docker compose version
     docker compose -f docker-compose.yml up -d --no-deps backend-app
-elif command -v docker-compose >/dev/null 2>&1; then
-    echo "Warning: docker compose v2 not found, fallback to docker-compose v1"
-    docker-compose version || true
-    docker rm -f my-spring-app >/dev/null 2>&1 || true
-    docker-compose -f docker-compose.yml up -d --no-deps backend-app
 else
-    echo "Docker Compose is not installed on server"
-    exit 125
+    echo "docker compose v2 plugin not found, using docker/compose:2.29.7"
+    docker run --rm \
+      -e DOCKER_HUB_USER="$DOCKER_HUB_USER" \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -v "$PWD:$PWD" \
+      -w "$PWD" \
+      docker/compose:2.29.7 \
+      -f docker-compose.yml up -d --no-deps backend-app
 fi
 EOF
                     '''
